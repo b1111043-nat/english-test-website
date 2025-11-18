@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>多益 800 分 靜態教材</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f6f7fb;
+    }
+    header {
+        background: #3a6ff7;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    nav {
+        background: #244ec3;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+    }
+    nav a {
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        cursor: pointer;
+    }
+    section {
+        display: none;
+        padding: 30px;
+    }
+    .active {
+        display: block;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    button {
+        padding: 10px 18px;
+        background: #3a6ff7;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #244ec3;
+    }
+    textarea {
+        width: 100%;
+        height: 150px;
+        padding: 10px;
+        font-size: 16px;
+    }
+</style>
+</head>
+
+<body>
+<header>多益 800 分 靜態網頁教材</header>
+
+<nav>
+    <a onclick="showSection('listen')">聽力 Listening</a>
+    <a onclick="showSection('speak')">口說 Speaking</a>
+    <a onclick="showSection('read')">閱讀 Reading</a>
+    <a onclick="showSection('write')">寫作 Writing</a>
+</nav>
+
+<!-- 聽力 -->
+<section id="listen" class="active">
+    <h2>Listening：聽力練習</h2>
+
+    <div class="card">
+        <p>請先聽音檔，並回答問題：</p>
+        <audio controls>
+            <source src="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/e/eus/eus74/eus74319.mp3" type="audio/mpeg" />
+        </audio>
+
+        <p><strong>問題：</strong> What does the speaker want to do?</p>
+
+        <button onclick="checkListening('A')">A. Schedule a meeting</button>
+        <button onclick="checkListening('B')">B. Cancel an appointment</button>
+        <button onclick="checkListening('C')">C. Request information</button>
+
+        <p id="listenResult"></p>
+    </div>
+</section>
+
+<!-- 口說 -->
+<section id="speak">
+    <h2>Speaking：口說練習</h2>
+    <div class="card">
+        <p>請念出以下句子，系統會辨識你的語音：</p>
+        <h3>"Could you please give me more details?"</h3>
+
+        <button onclick="startSpeech()">🎤 開始錄音</button>
+        <p id="speechText">辨識內容： (尚未開始)</p>
+    </div>
+</section>
+
+<!-- 閱讀 -->
+<section id="read">
+    <h2>Reading：閱讀測驗</h2>
+
+    <div class="card">
+        <p><strong>短文：</strong></p>
+        <p>
+            Mr. Johnson is planning a business trip to Taiwan next month.  
+            He will meet several clients and attend a conference about international trade.  
+            He is currently preparing his presentation slides and booking his hotel.
+        </p>
+
+        <p><strong>問題：</strong> What is Mr. Johnson preparing?</p>
+
+        <button onclick="checkReading('A')">A. His vacation schedule</button>
+        <button onclick="checkReading('B')">B. Presentation slides</button>
+        <button onclick="checkReading('C')">C. A new marketing plan</button>
+
+        <p id="readResult"></p>
+    </div>
+</section>
+
+<!-- 寫作 -->
+<section id="write">
+    <h2>Writing：寫作練習</h2>
+
+    <div class="card">
+        <p><strong>題目：</strong>  
+        Write an email to your manager explaining why you need to take a day off next week.</p>
+
+        <textarea id="writingInput" placeholder="請在此輸入你的英文回答…"></textarea>
+        <button onclick="evaluateWriting()">提交</button>
+
+        <p id="writeResult"></p>
+    </div>
+</section>
+
+<script>
+// 切換顯示區域
+function showSection(id) {
+    document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+// 聽力題
+function checkListening(ans) {
+    const result = document.getElementById("listenResult");
+    if (ans === "C") {
+        result.innerHTML = "✔ 正確！Speaker 想要請求資訊。";
+        result.style.color = "green";
+    } else {
+        result.innerHTML = "✘ 不正確，再試試看！";
+        result.style.color = "red";
+    }
+}
+
+// 閱讀題
+function checkReading(ans) {
+    const result = document.getElementById("readResult");
+    if (ans === "B") {
+        result.innerHTML = "✔ 正確！他正在準備簡報。";
+        result.style.color = "green";
+    } else {
+        result.innerHTML = "✘ 不正確，再想想看！";
+        result.style.color = "red";
+    }
+}
+
+// 口說（語音辨識）
+function startSpeech() {
+    const output = document.getElementById("speechText");
+
+    if (!('webkitSpeechRecognition' in window)) {
+        output.innerHTML = "你的瀏覽器不支援語音辨識。請使用 Chrome。";
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+
+    recognition.onstart = () => output.innerHTML = "辨識中…";
+    recognition.onerror = () => output.innerHTML = "辨識失敗，請再試一次。";
+
+    recognition.onresult = event => {
+        output.innerHTML = "辨識內容：" + event.results[0][0].transcript;
+    };
+
+    recognition.start();
+}
+
+// 寫作（簡易評估）
+function evaluateWriting() {
+    const text = document.getElementById("writingInput").value;
+    const output = document.getElementById("writeResult");
+
+    if (text.length < 30) {
+        output.innerHTML = "⚠ 字數太少，至少寫 30 個字以上。";
+        output.style.color = "red";
+        return;
+    }
+
+    output.innerHTML = "✔ 已提交！你的寫作內容結構清晰。建議加入更多細節提升分數。";
+    output.style.color = "green";
+}
+</script>
+
+</body>
+</html>
